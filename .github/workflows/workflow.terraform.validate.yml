@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "iac/terraform/**"
+      - ".github/workflows/**"
 
 jobs:
   sample:
@@ -34,3 +35,18 @@ jobs:
       - name: Lint Terraform
         run: |
           terraform fmt -check
+
+      - name: Validate configurations
+        env:
+          LOCATION: ${{ secrets.LOCATION }}
+          RESOURCES_PREFIX: ${{ steps.resources_prefix.outputs.result }}
+        run: |
+          if [ ${#LOCATION} -eq 0 ]; then
+              _error "Required LOCATION parameter is not set!"
+              exit 1
+          fi
+
+          if [ ${#RESOURCES_PREFIX} -eq 0 ]; then
+              _error "Required RESOURCES_PREFIX parameter is not set!"
+              exit 1
+          fi
