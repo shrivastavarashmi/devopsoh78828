@@ -10,7 +10,7 @@ on:
 
 jobs:
   sample:
-    runs-on: utuntu-latest
+    runs-on: ubuntu-latest
     outputs:
       RESOURCES_PREFIX: ${{ steps.resources_prefix.outputs.result }}
     steps:
