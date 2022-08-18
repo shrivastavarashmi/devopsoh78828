@@ -14,7 +14,7 @@ defaults:
     working-directory: "iac/terraform"
 
 jobs:
-  sample:
+  validation:
     runs-on: ubuntu-latest
     outputs:
       RESOURCES_PREFIX: ${{ steps.resources_prefix.outputs.result }}
