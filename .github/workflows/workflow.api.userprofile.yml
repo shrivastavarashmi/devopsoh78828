@@ -1,0 +1,45 @@
+name: "userpforile build&test"
+
+on:
+  # pull_request:
+  push:
+    branches:
+      - main
+    paths:
+      - "apis/userprofile/**"
+      - ".github/workflows/**"
+
+defaults:
+  run:
+    shell: bash
+    working-directory: "apis/userprofile"
+
+jobs:
+  buildtest:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 12
+
+      # Initialize, execute test
+      - name: npm init
+        run: npm ci
+      - name: npm test
+        run: npm run test
+
+      # Report test resuls
+      - name: Report test results
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Tape tests
+          path: reports/*.xml
+          reporter: java-junit
+
+
+
