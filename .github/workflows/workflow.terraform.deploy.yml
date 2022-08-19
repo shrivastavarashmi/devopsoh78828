@@ -52,14 +52,16 @@ jobs:
       - name: Terraform Plan
         id: tfplan
         continue-on-error: true
+        shell: bash +e {0}
         run: |
-          result=0
-          output=$(terraform plan --detailed-exitcode -var="location=${LOCATION}" -var="resources_prefix=${{ steps.resources_prefix.outputs.result }}") || result=$?
-          echo "::set-output name=exit_code::$result"
+          terraform plan \
+            --detailed-exitcode \
+            -var="location=${LOCATION}" \
+            -var="resources_prefix=${{ steps.resources_prefix.outputs.result }}"
+          echo "::set-output name=exit_code::$?"
       - name: check exit code
         if: always()
         run: |
-          echo "result    : ${{ steps.tfplan.outputs.result }}"
           echo "exit_code : ${{ steps.tfplan.outputs.exit_code }}"
 
   deploy:
