@@ -1,12 +1,11 @@
 name: "Deploy"
 
 on:
-  push:
+  pull_request:
     branches:
       - main
     paths:
       - "iac/terraform/**"
-      - ".github/workflows/**"
 
 env:
   LOCATION: ${{ secrets.LOCATION }}
