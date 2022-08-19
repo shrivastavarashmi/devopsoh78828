@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       RESOURCES_PREFIX: ${{ steps.resources_prefix.outputs.result }}
-      TFPLAN_EXITCODE: ${{ steps.tfplan.outputs.exit_code }}
+      TFPLAN_EXITCODE: ${{ steps.tfplan.outputs.result }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -57,7 +57,10 @@ jobs:
             --detailed-exitcode \
             -var="location=${LOCATION}" \
             -var="resources_prefix=${{ steps.resources_prefix.outputs.result }}"
-          echo "::set-output name=exit_code::$?"
+      - name: check exit code
+        if: always()
+        run: |
+          echo "${{ steps.tfplan.outputs.result }}"
 
   deploy:
     name: Deploy Changes
