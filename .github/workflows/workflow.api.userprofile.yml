@@ -9,6 +9,9 @@ on:
       - "apis/userprofile/**"
       - ".github/workflows/**"
 
+env:
+  WORKING_DIRECTORY: "apis/userprofile"
+
 defaults:
   run:
     shell: bash
@@ -38,7 +41,7 @@ jobs:
         if: success() || failure()
         with:
           name: Tape tests
-          path: reports/*.xml
+          path: ${{ env.WORKING_DIRECTORY }}/reports/*.xml
           reporter: java-junit
 
 
