@@ -53,14 +53,9 @@ jobs:
         id: tfplan
         continue-on-error: true
         run: |
-          output = $(
-            terraform plan \
-              --detailed-exitcode \
-              -var="location=${LOCATION}" \
-              -var="resources_prefix=${{ steps.resources_prefix.outputs.result }}" > ./result
-          )
-          cat result
-          echo "::set-output name=exit_code::$?"
+          result=0
+          output=$(terraform plan --detailed-exitcode -var="location=${LOCATION}" -var="resources_prefix=${{ steps.resources_prefix.outputs.result }}") || result=$?
+          echo "::set-output name=exit_code::$result"
       - name: check exit code
         if: always()
         run: |
