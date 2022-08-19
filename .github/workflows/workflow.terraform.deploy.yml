@@ -58,6 +58,7 @@ jobs:
             --detailed-exitcode \
             -var="location=${LOCATION}" \
             -var="resources_prefix=${{ steps.resources_prefix.outputs.result }}"
+          echo $?
           echo "::set-output name=exit_code::$?"
       - name: check exit code
         if: always()
