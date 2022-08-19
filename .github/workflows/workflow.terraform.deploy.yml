@@ -38,29 +38,32 @@ jobs:
           result-encoding: string
           script: return context.repo.repo.toLowerCase()
 
-      - name: Setup Terraform
+      - name: Terraform Setup
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.1.7
-      - name: Initialize terraform
+      - name: Terraform Init
         run: |
           terraform init \
             -backend-config=resource_group_name="${{ secrets.TFSTATE_RESOURCES_GROUP_NAME }}" \
             -backend-config=storage_account_name="${{ secrets.TFSTATE_STORAGE_ACCOUNT_NAME }}" \
             -backend-config=container_name="${{ secrets.TFSTATE_STORAGE_CONTAINER_NAME }}" \
             -backend-config=key="${{ secrets.TFSTATE_KEY }}"
-      - name: Validate terraform
+      - name: Terraform Plan
         id: tfplan
         continue-on-error: true
         run: |
           terraform plan \
             --detailed-exitcode \
             -var="location=${LOCATION}" \
-            -var="resources_prefix=${{ steps.resources_prefix.outputs.result }}"
+            -var="resources_prefix=${{ steps.resources_prefix.outputs.result }}" || true
+          echo "::set-output name=exit_code::$?"
+          echo "${{ steps.tfplan.outputs.result }}"
       - name: check exit code
         if: always()
         run: |
-          echo "${{ steps.tfplan.outputs.result }}"
+          echo "result    : ${{ steps.tfplan.outputs.result }}"
+          echo "exit_code : ${{ steps.tfplan.outputs.exit_code }}"
 
   deploy:
     name: Deploy Changes
