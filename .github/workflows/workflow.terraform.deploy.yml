@@ -51,12 +51,12 @@ jobs:
             -backend-config=key="${{ secrets.TFSTATE_KEY }}"
       - name: Validate terraform
         id: tfplan
+        continue-on-error: true
         run: |
           terraform plan \
             --detailed-exitcode \
             -var="location=${LOCATION}" \
-            -var="resources_prefix=${{ steps.resources_prefix.outputs.result }}" \
-            || exit 0
+            -var="resources_prefix=${{ steps.resources_prefix.outputs.result }}"
 
   deploy:
     name: Deploy Changes
