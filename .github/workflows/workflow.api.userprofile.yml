@@ -7,12 +7,8 @@ on:
     paths:
       - "apis/userprofile/**"
       - ".github/workflows/**"
-  push:
-    branches:
-      - main
-    paths:
-      - "apis/userprofile/**"
-      - ".github/workflows/**"
+  workflow_dispatch:
+
 
 env:
   WORKING_DIRECTORY: "apis/userprofile"
