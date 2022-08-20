@@ -22,7 +22,7 @@ defaults:
 
 jobs:
   build:
-    name: Build & Test
+    name: Build & push container image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -43,7 +43,7 @@ jobs:
       - name: Build, tag, and push docker image to ACR
         id: build-img
         run: |
-          docker build -t $REGISTRY_URI/$REPOSITORY_NAME:$IMAGE_TAG
+          docker build -t $REGISTRY_URI/$REPOSITORY_NAME:$IMAGE_TAG .
           docker push $REGISTRY_URI/$REPOSITORY_NAME:$IMAGE_TAG
           echo "::set-output name=image::$REGISTRY_URI/$REPOSITORY_NAME:$IMAGE_TAG"
 
