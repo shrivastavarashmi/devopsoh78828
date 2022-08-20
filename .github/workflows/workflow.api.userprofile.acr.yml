@@ -1,0 +1,51 @@
+name: "userpforile build&deploy"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apis/userprofile/**"
+      - ".github/workflows/**"
+  workflow_dispatch:
+
+env:
+  WORKING_DIRECTORY: "apis/userprofile"
+  REGISTRY_URI: devopsoh78828cr.azurecr.io
+  REPOSITORY_NAME: devopsoh/api-userprofile
+  IMAGE_TAG: ${{ GITHUB.SHA }}
+
+defaults:
+  run:
+    shell: bash
+    working-directory: "apis/userprofile"
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Login Azure
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Login ACR
+      - name: ACR Login
+        run: |
+          az acr login --name $REGISTRY_URI
+
+      # Build, tag, and push docker image to ACR
+      - name: Build, tag, and push docker image to ACR
+        id: build-img
+        run: |
+          docker build -t $REGISTRY_URI/$REPOSITORY_NAME:$IMAGE_TAG
+          docker push $REGISTRY_URI/$REPOSITORY_NAME:$IMAGE_TAG
+          echo "::set-output name=image::$REGISTRY_URI/$REPOSITORY_NAME:$IMAGE_TAG"
+
+
+
