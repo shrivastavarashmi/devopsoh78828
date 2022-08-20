@@ -41,6 +41,14 @@ jobs:
         continue-on-error: true
         run: npm run test
 
+      # Upload artifacts
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: unit_test_results
+          path: ${{ env.WORKING_DIRECTORY }}/reports/*.xml
+          retention-days: 1
+
       # Report test resuls
       - name: Report test results
         uses: dorny/test-reporter@v1
