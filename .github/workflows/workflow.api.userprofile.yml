@@ -41,38 +41,9 @@ jobs:
         continue-on-error: true
         run: npm run test
 
-      # Upload artifacts
-      - name: Upload test results
+      # Report test results
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v3
         if: always()
-        uses: actions/upload-artifact@v3
-        continue-on-error: true
         with:
-          name: unit_test_results
-          path: ${{ env.WORKING_DIRECTORY }}/reports/*.xml
-          retention-days: 1
-
-      # Report test resuls
-      - name: Report test results
-        uses: dorny/test-reporter@v1.5.0
-        if: success() || failure()
-        with:
-          name: Unit test results
-          path: ${{ env.WORKING_DIRECTORY }}/reports/*.xml
-          reporter: java-junit
-
-      # If it encounts error, creates issue and comments to PR.
-      - name: Comment PR
-        if: failure() && github.event_name == 'pull_request'
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          issue-number: ${{ github.event.number }}
-          body: |
-            ## Unit test failure
-            Workflow details
-            * Workflow name: ${{ github.workflow }}
-            * Action: ${{ github.event_name }}
-            * Job: ${{ github.job }}
-            * PR: ${{ github.event.number }}
-
-            Test details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            Pusher: ${{ github.actor }}
+          report_paths: ${{ env.WORKING_DIRECTORY }}/reports/*.xml
