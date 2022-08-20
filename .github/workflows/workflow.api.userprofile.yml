@@ -1,8 +1,7 @@
 name: "userpforile build&test"
 
 on:
-  # pull_request:
-  push:
+  pull_request:
     branches:
       - main
     paths:
