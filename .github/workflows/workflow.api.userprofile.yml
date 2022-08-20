@@ -43,7 +43,9 @@ jobs:
 
       # Upload artifacts
       - name: Upload test results
+        if: always()
         uses: actions/upload-artifact@v3
+        continue-on-error: true
         with:
           name: unit_test_results
           path: ${{ env.WORKING_DIRECTORY }}/reports/*.xml
