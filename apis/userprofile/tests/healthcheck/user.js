@@ -74,6 +74,5 @@ Test('/healthcheck/user', function (t) {
                 });
             });
         });
-        t.equal(1, 2, 'cause error');
     });
 });
