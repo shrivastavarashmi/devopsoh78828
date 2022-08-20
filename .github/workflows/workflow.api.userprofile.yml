@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - "apis/userprofile/**"
-      - ".github/workflows/**"
   workflow_dispatch:
 
 
