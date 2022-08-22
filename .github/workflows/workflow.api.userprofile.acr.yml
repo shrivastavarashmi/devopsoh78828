@@ -14,6 +14,7 @@ env:
   REGISTRY_URI: devopsoh78828cr.azurecr.io
   REPOSITORY_NAME: devopsoh/api-userprofile
   IMAGE_TAG: ${{ GITHUB.SHA }}
+  API_NAME: userprofile
 
 defaults:
   run:
@@ -24,9 +25,18 @@ jobs:
   build:
     name: Build & push container image
     runs-on: ubuntu-latest
+    outputs:
+      RESOURCES_PREFIX: ${{ steps.resources_prefix.outputs.result }}
+      DOCKER_IMAGE_NAME: ${{ steps.build-img.outputs.image }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Get repo name
+        uses: actions/github-script@v5
+        id: resources_prefix
+        with:
+          result-encoding: string
+          script: return context.repo.repo.toLowerCase()
 
       # Login Azure
       - name: Azure Login
@@ -47,5 +57,24 @@ jobs:
           docker push $REGISTRY_URI/$REPOSITORY_NAME:$IMAGE_TAG
           echo "::set-output name=image::$REGISTRY_URI/$REPOSITORY_NAME:$IMAGE_TAG"
 
+  production:
+    name: Deploy container image
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      RESOURCES_PREFIX: ${{ needs.build.outputs.RESOURCES_PREFIX }}
+      DOCKER_IMAGE_NAME: ${{ needs.build.outputs.DOCKER_IMAGE_NAME }}
+    steps:
+      # Login Azure
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-
+      # Deploy new image to WebApp
+      - name: Deploy new image to WebApp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.RESOURCES_PREFIX }}${{ env.API_NAME }}
+          images: ${{ env.DOCKER_IMAGE_NAME }}
