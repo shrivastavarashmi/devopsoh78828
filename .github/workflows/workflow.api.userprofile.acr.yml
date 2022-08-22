@@ -109,10 +109,12 @@ jobs:
 
       # Swap WebApp Slot
       - name: Swap webapp slot
-        run: |
-          az webapp deployment slot swap \
-            --resource-group ${{ env.RESOURCES_PREFIX }}rg \
-            --name ${{ env.RESOURCES_PREFIX }}${{ env.API_NAME }} \
-            --slot staging \
-            --target-slot production
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az webapp deployment slot swap \
+              --resource-group ${{ env.RESOURCES_PREFIX }}rg \
+              --name ${{ env.RESOURCES_PREFIX }}${{ env.API_NAME }} \
+              --slot staging \
+              --target-slot production
 
