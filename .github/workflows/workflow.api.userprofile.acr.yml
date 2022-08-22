@@ -57,11 +57,11 @@ jobs:
           docker push $REGISTRY_URI/$REPOSITORY_NAME:$IMAGE_TAG
           echo "::set-output name=image::$REGISTRY_URI/$REPOSITORY_NAME:$IMAGE_TAG"
 
-  production:
+  staging:
     name: Deploy container image
     needs: build
     runs-on: ubuntu-latest
-    environment: production
+    environment: staging
     env:
       RESOURCES_PREFIX: ${{ needs.build.outputs.RESOURCES_PREFIX }}
       DOCKER_IMAGE_NAME: ${{ needs.build.outputs.DOCKER_IMAGE_NAME }}
@@ -74,7 +74,45 @@ jobs:
 
       # Deploy new image to WebApp
       - name: Deploy new image to WebApp
+        id: webapp-staging
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.RESOURCES_PREFIX }}${{ env.API_NAME }}
+          slot-name: staging
           images: ${{ env.DOCKER_IMAGE_NAME }}
+
+      # Service health check
+      - name: Check the deployed service health
+        uses: jtalk/url-health-check-action@v2
+        with:
+          url: ${{ steps.webapp-staging.outputs.webapp-url }}/api/healthcheck/user
+          follow-redirect: true
+          max-attempts: 60
+          retry-delay: 10s
+          retry-all: true
+
+  production:
+    name: Release webapp (swap slot)
+    needs:
+      - build
+      - staging
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      RESOURCES_PREFIX: ${{ needs.build.outputs.RESOURCES_PREFIX }}
+    steps:
+      # Login Azure
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Swap WebApp Slot
+      - name: Swap webapp slot
+        run: |
+          az webapp deployment slot swap \
+            --resource-group ${{ env.RESOURCES_PREFIX }}rg \
+            --name ${{ env.RESOURCES_PREFIX }}${{ env.API_NAME }} \
+            --slot staging \
+            --target-slot production
+
