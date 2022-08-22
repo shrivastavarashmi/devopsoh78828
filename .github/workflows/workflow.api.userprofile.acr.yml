@@ -16,15 +16,15 @@ env:
   IMAGE_TAG: ${{ GITHUB.SHA }}
   API_NAME: userprofile
 
+defaults:
+  run:
+    shell: bash
+    working-directory: "apis/userprofile"
 
 jobs:
   build:
     name: Build & push container image
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: "apis/userprofile"
     outputs:
       RESOURCES_PREFIX: ${{ steps.resources_prefix.outputs.result }}
       DOCKER_IMAGE_NAME: ${{ steps.build-img.outputs.image }}
